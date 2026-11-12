@@ -1,0 +1,911 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Oficina UX</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: página única que segue a decisão do visitante (me reconheço, entendo o curso, vejo o preço, tiro dúvidas, me inscrevo).
+   O diagrama do Duplo Diamante no topo é o elemento central; o marcador amarelo é o único acento extra. */
+:root {
+  --bg: #F2F5F9;
+  --surface: #FFFFFF;
+  --surface-2: #E8EDF5;
+  --ink: #0E1A2B;
+  --muted: #4A586D;
+  --line: #D3DAE6;
+  --line-strong: #8190A8;
+  --accent: #2438D9;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E3E7FC;
+  --mark: #FFD84A;
+  --mark-bg: #FFD84A;
+  --ok: #0B6B45;
+  --ok-soft: #DDF2E8;
+  --err: #B42318;
+  --err-soft: #FDE8E5;
+  --foot-bg: #0E1A2B;
+  --foot-ink: #EAF0FA;
+  --foot-muted: #A3B1C9;
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  --header-h: 64px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1120; --surface: #121A2D; --surface-2: #18223A; --ink: #EAF0FA; --muted: #A3B1C9;
+    --line: #27334D; --line-strong: #5E6E8C; --accent: #8C9BFF; --accent-ink: #0B1120; --accent-soft: #19224A;
+    --mark: #FFD84A; --mark-bg: #6B5A00; --ok: #5FD3A0; --ok-soft: #10301F; --err: #FF8F85; --err-soft: #3A1715;
+    --foot-bg: #070B15; --foot-ink: #EAF0FA; --foot-muted: #A3B1C9;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1120; --surface: #121A2D; --surface-2: #18223A; --ink: #EAF0FA; --muted: #A3B1C9;
+  --line: #27334D; --line-strong: #5E6E8C; --accent: #8C9BFF; --accent-ink: #0B1120; --accent-soft: #19224A;
+  --mark: #FFD84A; --mark-bg: #6B5A00; --ok: #5FD3A0; --ok-soft: #10301F; --err: #FF8F85; --err-soft: #3A1715;
+  --foot-bg: #070B15; --foot-ink: #EAF0FA; --foot-muted: #A3B1C9;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 12px); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 30; background: var(--surface);
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; margin: 0; text-wrap: balance; letter-spacing: -0.015em; }
+h1 { font-size: clamp(2.4rem, 1.2rem + 4.6vw, 4.3rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.02; }
+h2 { font-size: clamp(1.8rem, 1.1rem + 2.6vw, 2.75rem); font-weight: 700; }
+h3 { font-size: 1.3rem; font-weight: 650; }
+p, ul, ol, dl, dd, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+button { font: inherit; }
+
+.wrap {
+  width: 100%; max-width: 1180px; margin-inline: auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.band { padding-block: clamp(56px, 8vw, 104px); }
+.band--surface { background: var(--surface); border-block: 1px solid var(--line); }
+.band--accent { background: var(--accent-soft); border-block: 1px solid var(--line); }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.sec-head { display: grid; gap: 14px; max-width: 62ch; margin-bottom: 40px; }
+.lede { color: var(--muted); font-size: 1.15rem; }
+.mk { background: linear-gradient(transparent 58%, var(--mark-bg) 58% 94%, transparent 94%); padding-inline: 0.06em; }
+.stack-lg { display: grid; gap: 56px; }
+.skip { position: absolute; left: 12px; top: 8px; z-index: 60; padding: 10px 16px; background: var(--ink); color: var(--bg); border-radius: 6px; transform: translateY(-200%); }
+.skip:focus { transform: none; }
+
+/* Botões */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; padding: 10px 22px; border: 2px solid transparent; border-radius: 6px;
+  font-weight: 650; font-size: 1rem; line-height: 1.2; text-decoration: none; cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.btn--primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn--primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px -6px var(--accent); }
+.btn--primary:active { transform: translateY(0); box-shadow: none; }
+.btn--ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
+.btn--ghost:hover { background: var(--surface-2); }
+.btn--sm { min-height: 44px; padding: 8px 16px; font-size: 0.95rem; }
+.btn[disabled] { cursor: progress; opacity: .85; transform: none; box-shadow: none; }
+.spinner { width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid currentColor; border-right-color: transparent; animation: spin .8s linear infinite; display: none; }
+.is-busy .spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.linklike { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-weight: 600; }
+
+/* Cabeçalho */
+.site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); border-bottom: 1px solid var(--line); }
+.progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+.bar { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "brand nav cta"; align-items: center; gap: 4px 24px; min-height: 64px; }
+.brand { grid-area: brand; display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: var(--ink); text-decoration: none; letter-spacing: -0.02em; }
+.brand svg { width: 34px; height: 18px; }
+.nav { grid-area: nav; display: flex; gap: 4px; justify-content: center; }
+.nav a { padding: 10px 12px; color: var(--ink); text-decoration: none; font-weight: 550; font-size: 0.97rem; background-image: linear-gradient(var(--mark), var(--mark)); background-repeat: no-repeat; background-position: 12px calc(100% - 6px); background-size: 0 3px; transition: background-size .2s ease; white-space: nowrap; }
+.nav a:hover { background-size: calc(100% - 24px) 3px; }
+.nav a[aria-current="true"] { background-size: calc(100% - 24px) 3px; }
+.header-cta { grid-area: cta; }
+@media (max-width: 900px) {
+  .bar { grid-template-columns: 1fr auto; grid-template-areas: "brand cta" "nav nav"; padding-top: 8px; }
+  .nav { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; margin-inline: -8px; padding-bottom: 2px; }
+  .nav::-webkit-scrollbar { display: none; }
+}
+
+/* Hero */
+.hero { padding-block: clamp(40px, 6vw, 88px) clamp(48px, 7vw, 96px); }
+.hero__grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr); gap: clamp(32px, 5vw, 64px); align-items: center; }
+.hero__text { display: grid; gap: 24px; min-width: 0; }
+.hero__text .lede { max-width: 52ch; color: var(--ink); opacity: .86; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero__meta { font-size: 0.95rem; color: var(--muted); }
+.hero__meta strong { color: var(--ink); font-weight: 600; }
+.diagram { background: var(--surface); border: 1px solid var(--line); padding: clamp(16px, 2.4vw, 28px); display: grid; gap: 18px; min-width: 0; }
+.diagram h2 { font-size: 1.1rem; font-family: var(--font-body); font-weight: 650; letter-spacing: 0; }
+.dd { width: 100%; height: auto; display: block; }
+.dd .d1 { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; }
+.dd .d2 { fill: var(--accent); stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; }
+.dd .g1 { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 5; opacity: .55; }
+.dd .g2 { stroke: var(--accent-ink); stroke-width: 1.5; stroke-dasharray: 4 5; opacity: .6; }
+.dd .n1 { font: 700 34px var(--font-display); fill: var(--accent); text-anchor: middle; }
+.dd .n2 { font: 700 34px var(--font-display); fill: var(--accent-ink); text-anchor: middle; }
+.dd .pt { fill: var(--mark); stroke: var(--ink); stroke-width: 2; }
+.legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
+.legend li { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: start; font-size: 0.92rem; line-height: 1.35; }
+.chip { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font: 700 0.85rem var(--font-display); grid-row: span 2; }
+.chip--a { background: var(--accent-soft); color: var(--accent); border: 1.5px solid var(--accent); }
+.chip--b { background: var(--accent); color: var(--accent-ink); border: 1.5px solid var(--accent); }
+.legend b { font-weight: 650; }
+.legend span { color: var(--muted); }
+.diagram__note { font-size: 0.9rem; color: var(--muted); display: flex; gap: 10px; align-items: flex-start; }
+.diagram__note i { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--mark); border: 2px solid var(--ink); margin-top: 5px; }
+@media (max-width: 900px) { .hero__grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Para quem é */
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab { min-height: 44px; padding: 8px 18px; border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; border-radius: 999px; cursor: pointer; }
+.tab:hover { border-color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tabpanel { margin-top: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); background: var(--surface); }
+.tabpanel[hidden] { display: none; }
+.tabpanel > div { padding: clamp(20px, 3vw, 36px); display: grid; gap: 12px; align-content: start; min-width: 0; }
+.tabpanel > div + div { border-left: 1px solid var(--line); background: var(--surface-2); }
+.quote { font-family: var(--font-display); font-size: clamp(1.3rem, 1rem + 1.2vw, 1.8rem); line-height: 1.2; font-weight: 600; text-wrap: balance; }
+.tag { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.pairs-title { margin-top: 56px; margin-bottom: 20px; }
+.pairs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 32px; }
+.pair { border-top: 2px solid var(--ink); padding-top: 14px; display: grid; gap: 10px; align-content: start; }
+.pair__pain { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; line-height: 1.2; }
+.pair__ans { color: var(--muted); }
+.pair__ans .tag { display: block; color: var(--accent); margin-bottom: 2px; }
+@media (max-width: 760px) {
+  .tabpanel { grid-template-columns: minmax(0, 1fr); }
+  .tabpanel > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .pairs { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* O curso */
+.course-top { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: clamp(28px, 5vw, 64px); align-items: end; }
+.course-top > * { min-width: 0; }
+.value { display: grid; gap: 18px; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); background: var(--bg); }
+.facts div { padding: 18px 20px; display: grid; gap: 2px; }
+.facts div:nth-child(n+3) { border-top: 1px solid var(--line); }
+.facts div:nth-child(even) { border-left: 1px solid var(--line); }
+.facts dt { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.facts dd { font-family: var(--font-display); font-size: 1.55rem; font-weight: 650; line-height: 1.15; }
+.mod-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-top: 64px; margin-bottom: 20px; }
+.mod-head p { color: var(--muted); }
+.modules { display: grid; gap: 10px; }
+.mod { border: 1px solid var(--line); background: var(--bg); }
+.mod[open] { background: var(--surface); border-color: var(--line-strong); }
+.mod summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; grid-template-areas: "n t w i"; gap: 6px 18px; align-items: center; padding: 16px 20px; min-height: 64px; }
+.mod summary::-webkit-details-marker { display: none; }
+.mod summary:hover .mod-t { color: var(--accent); }
+.mod-n { grid-area: n; font-family: var(--font-mono); font-size: 0.9rem; color: var(--muted); }
+.mod-t { grid-area: t; font-family: var(--font-display); font-size: 1.2rem; font-weight: 650; line-height: 1.2; }
+.mod-w { grid-area: w; font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+.mod-i { grid-area: i; width: 10px; height: 10px; border-right: 2.5px solid currentColor; border-bottom: 2.5px solid currentColor; transform: rotate(45deg); margin-right: 4px; transition: transform .2s ease; }
+.mod[open] .mod-i { transform: rotate(225deg); }
+.mod-body { display: grid; gap: 14px; padding: 4px 20px 22px calc(20px + 2.2rem); max-width: 78ch; }
+.mod-body .deliver { padding: 12px 16px; background: var(--accent-soft); display: grid; gap: 2px; }
+.mod-body .deliver .tag { color: var(--accent); }
+.mod-body .deliver strong { font-weight: 600; }
+@media (max-width: 640px) {
+  .mod summary { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "n t i" ". w ."; }
+  .mod-body { padding-left: 20px; }
+}
+@media (max-width: 860px) { .course-top { grid-template-columns: minmax(0, 1fr); } }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 5vw, 64px); margin-top: 64px; }
+.two > * { min-width: 0; display: grid; gap: 16px; align-content: start; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.ticks { display: grid; gap: 12px; }
+.ticks li { position: relative; padding-left: 32px; }
+.ticks li::before { content: ""; position: absolute; left: 0; top: 4px; width: 20px; height: 20px; background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10.5l4 4 8-9' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10.5l4 4 8-9' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; }
+.ticks b { font-weight: 650; }
+.gloss { margin-top: 72px; display: grid; gap: 20px; }
+.gloss dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
+.gloss div { padding: 14px 0; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+.gloss dt { font-family: var(--font-display); font-weight: 650; font-size: 1.1rem; }
+.gloss dd { color: var(--muted); }
+@media (max-width: 760px) { .gloss dl { grid-template-columns: minmax(0, 1fr); } }
+
+/* Preço */
+.price-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+.price-grid > * { min-width: 0; }
+.price-card { background: var(--surface); border: 2px solid var(--accent); padding: clamp(22px, 3vw, 36px); display: grid; gap: 18px; }
+.price-big { font-family: var(--font-display); font-size: clamp(3rem, 2rem + 4vw, 4.5rem); font-weight: 700; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.price-alt { font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.price-note { font-size: 0.93rem; color: var(--muted); padding-top: 14px; border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .price-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Perguntas */
+.faq { display: grid; max-width: 800px; border-top: 1px solid var(--line); }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 18px 4px; min-height: 60px; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; line-height: 1.25; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary:hover { color: var(--accent); }
+.faq summary::after { content: ""; flex: none; width: 10px; height: 10px; border-right: 2.5px solid currentColor; border-bottom: 2.5px solid currentColor; transform: rotate(45deg); transition: transform .2s ease; margin-right: 4px; }
+.faq details[open] summary::after { transform: rotate(225deg); }
+.faq details p { padding: 0 4px 20px; color: var(--muted); max-width: 64ch; }
+
+/* Inscrição */
+.enroll-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.enroll-grid > * { min-width: 0; }
+.recap { display: grid; gap: 14px; }
+.recap dl { display: grid; background: var(--surface); border: 1px solid var(--line); }
+.recap dl div { padding: 14px 18px; display: grid; gap: 2px; }
+.recap dl div + div { border-top: 1px solid var(--line); }
+.recap dt { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.recap dd { font-weight: 600; }
+.card { background: var(--surface); border: 1px solid var(--line-strong); padding: clamp(20px, 3vw, 36px); display: grid; gap: 22px; }
+.steps { display: flex; gap: 8px; font-size: 0.9rem; flex-wrap: wrap; }
+.steps li { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.steps li + li::before { content: ""; width: 24px; height: 2px; background: var(--line-strong); margin-right: 4px; }
+.steps .dot { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--line-strong); font: 600 0.8rem var(--font-display); }
+.steps li.is-current { color: var(--ink); font-weight: 650; }
+.steps li.is-current .dot { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.steps li.is-done .dot { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.panel { display: grid; gap: 20px; }
+.panel[hidden] { display: none; }
+.field { display: grid; gap: 6px; }
+.field label, .field legend { font-weight: 650; }
+.hint { font-size: 0.9rem; color: var(--muted); }
+.field input[type="text"], .field input[type="email"], .field select {
+  width: 100%; min-height: 48px; padding: 10px 14px; border: 1.5px solid var(--line-strong); border-radius: 6px;
+  background: var(--surface); color: var(--ink); font: inherit;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); outline: 3px solid var(--accent-soft); outline-offset: 0; }
+.field--invalid input { border-color: var(--err); background: var(--err-soft); }
+.msg { min-height: 0; font-size: 0.92rem; color: var(--muted); }
+.field--invalid .msg { color: var(--err); font-weight: 550; }
+.field--invalid .msg::before { content: "!"; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--err); color: var(--bg); font-weight: 700; font-size: 0.75rem; margin-right: 8px; }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.opts { display: grid; gap: 10px; margin-top: 8px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1.5px solid var(--line-strong); border-radius: 6px; cursor: pointer; }
+.opt input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.opt:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.opt b { display: block; font-weight: 650; }
+.opt span { color: var(--muted); font-size: 0.92rem; }
+.err-summary { padding: 14px 16px; border: 1.5px solid var(--err); background: var(--err-soft); display: grid; gap: 6px; }
+.err-summary[hidden] { display: none; }
+.err-summary p { font-weight: 650; color: var(--err); }
+.err-summary ul { display: grid; gap: 4px; }
+.err-summary a { color: var(--ink); }
+.review { display: grid; border: 1px solid var(--line); }
+.review div { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr); gap: 12px; padding: 12px 16px; }
+.review div + div { border-top: 1px solid var(--line); }
+.review dt { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+.review dd { font-weight: 600; overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.status { font-size: 0.92rem; color: var(--muted); min-height: 1.4em; }
+.done-badge { display: inline-flex; width: fit-content; padding: 4px 12px; background: var(--ok-soft); color: var(--ok); font-weight: 650; font-size: 0.9rem; border-radius: 999px; }
+.sim-note { padding: 12px 16px; background: var(--surface-2); font-size: 0.93rem; color: var(--muted); }
+#review-title, #done-title { outline: none; }
+@media (max-width: 860px) { .enroll-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 480px) { .review div { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+
+/* Documentação */
+.doc-block { display: grid; gap: 8px; }
+.doc-block + .doc-block { margin-top: 56px; }
+.doc-block > h3 { margin-bottom: 12px; font-size: 1.6rem; }
+.doc-list { border-bottom: 1px solid var(--line); }
+.doc-row { display: grid; grid-template-columns: minmax(0, 17rem) minmax(0, 1fr) auto; gap: 6px 28px; padding: 18px 0; border-top: 1px solid var(--line); align-items: start; }
+.doc-row h4 { margin: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 650; line-height: 1.25; }
+.doc-row h4 small { display: block; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+.doc-row p { color: var(--muted); }
+.doc-row a { white-space: nowrap; font-weight: 600; font-size: 0.95rem; }
+@media (max-width: 820px) { .doc-row { grid-template-columns: minmax(0, 1fr); } }
+
+/* Rodapé */
+.footer { background: var(--foot-bg); color: var(--foot-ink); padding-block: 48px; }
+.footer .wrap { display: grid; gap: 28px; }
+.footer__top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px 40px; align-items: center; }
+.footer .brand { color: var(--foot-ink); }
+.footer nav { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.footer a { color: var(--foot-ink); }
+.footer p { color: var(--foot-muted); max-width: 70ch; font-size: 0.95rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
+</style>
+
+<div id="topo">
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="site-header" id="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="#topo" aria-label="Oficina UX, voltar ao topo">
+      <svg viewBox="0 0 34 18" aria-hidden="true"><polygon points="1,9 9,1 17,9 9,17" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/><polygon points="17,9 25,1 33,9 25,17" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/></svg>
+      Oficina UX
+    </a>
+    <nav class="nav" id="nav" aria-label="Seções da página">
+      <a href="#para-quem" data-spy>Para quem</a>
+      <a href="#curso" data-spy>O curso</a>
+      <a href="#preco" data-spy>Preço</a>
+      <a href="#perguntas" data-spy>Dúvidas</a>
+      <a href="#como-foi-feito" data-spy>Documentação</a>
+    </nav>
+    <a class="btn btn--primary btn--sm header-cta" href="#inscricao">Quero me inscrever</a>
+  </div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+</header>
+
+<main id="conteudo">
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="h-hero">
+    <div class="wrap hero__grid">
+      <div class="hero__text">
+        <p class="eyebrow">Curso online · 8 semanas · turma de 25 pessoas</p>
+        <h1 id="h-hero">Aprenda UX fazendo um <span class="mk">projeto de verdade</span>.</h1>
+        <p class="lede">Em 8 semanas você pesquisa com pessoas reais, define um problema, desenha uma solução e testa com quem vai usar. No final, tem um estudo de caso pronto para o portfólio.</p>
+        <div class="cta-row">
+          <a class="btn btn--primary" href="#inscricao">Quero me inscrever</a>
+          <a class="btn btn--ghost" href="#curso">Ver o que vou aprender</a>
+        </div>
+        <p class="hero__meta"><strong>Sem pré-requisitos.</strong> Garantia de 7 dias. R$&nbsp;597 à vista ou 12x de R$&nbsp;49,75.</p>
+      </div>
+
+      <figure class="diagram">
+        <h2>O caminho do curso: dois losangos</h2>
+        <svg class="dd" viewBox="0 0 560 300" role="img" aria-labelledby="dd-t dd-d">
+          <title id="dd-t">Diagrama do Duplo Diamante</title>
+          <desc id="dd-d">Dois losangos lado a lado, divididos em quatro partes numeradas de 1 a 4: descobrir, definir, desenvolver e entregar. Um ponto amarelo marca o encontro dos losangos, onde o problema fica definido.</desc>
+          <polygon class="d1" points="30,150 155,30 280,150 155,270"/>
+          <polygon class="d2" points="280,150 405,30 530,150 405,270"/>
+          <line class="g1" x1="155" y1="30" x2="155" y2="270"/>
+          <line class="g2" x1="405" y1="30" x2="405" y2="270"/>
+          <text class="n1" x="92" y="162">1</text>
+          <text class="n1" x="217" y="162">2</text>
+          <text class="n2" x="348" y="162">3</text>
+          <text class="n2" x="467" y="162">4</text>
+          <circle class="pt" cx="280" cy="150" r="9"/>
+        </svg>
+        <ol class="legend">
+          <li><span class="chip chip--a">1</span><b>Descobrir</b><span>Módulos 1 e 2: entender as pessoas</span></li>
+          <li><span class="chip chip--a">2</span><b>Definir</b><span>Módulos 3 e 4: escolher o problema</span></li>
+          <li><span class="chip chip--b">3</span><b>Desenvolver</b><span>Módulos 5 e 6: criar a solução</span></li>
+          <li><span class="chip chip--b">4</span><b>Entregar</b><span>Módulos 7 e 8: testar e publicar</span></li>
+        </ol>
+        <p class="diagram__note"><i aria-hidden="true"></i>O ponto amarelo marca o momento em que o problema fica bem definido, antes de qualquer tela ser desenhada.</p>
+      </figure>
+    </div>
+  </section>
+
+  <!-- PARA QUEM É -->
+  <section class="band band--surface" id="para-quem" data-section aria-labelledby="h-quem">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow">Para quem é</p>
+        <h2 id="h-quem">Você se reconhece em algum destes casos?</h2>
+        <p class="lede">O curso foi pensado para quem quer entrar em UX e não sabe por onde começar. Escolha o seu perfil para ver o que muda para você.</p>
+      </header>
+
+      <div class="tabs" role="tablist" aria-label="Perfis de quem faz o curso">
+        <button class="tab" role="tab" id="tab-1" aria-selected="true" aria-controls="panel-1">Venho de outra área</button>
+        <button class="tab" role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">Sou desenvolvedor(a)</button>
+        <button class="tab" role="tab" id="tab-3" aria-selected="false" aria-controls="panel-3" tabindex="-1">Já desenho interfaces</button>
+      </div>
+
+      <div class="tabpanel" role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+        <div><p class="tag">O que você sente</p><p class="quote">“Quero mudar de carreira, mas não sei se UX é para mim nem por onde começar.”</p></div>
+        <div><p class="tag">O que muda no curso</p><p>Você começa do zero. Na primeira semana vê o que uma pessoa de UX faz no dia a dia e o que o mercado pede. Cada semana seguinte tem uma tarefa pequena e uma entrega clara.</p></div>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
+        <div><p class="tag">O que você sente</p><p class="quote">“Meus sistemas funcionam, mas ninguém entende como usar.”</p></div>
+        <div><p class="tag">O que muda no curso</p><p>Você aprende a testar telas com pessoas reais antes de programar e a corrigir os pontos em que elas travam. O protótipo é feito no Figma, sem código.</p></div>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden>
+        <div><p class="tag">O que você sente</p><p class="quote">“Faço telas bonitas, mas não sei explicar por que decidi cada coisa.”</p></div>
+        <div><p class="tag">O que muda no curso</p><p>Você aprende a pesquisar, a definir o problema e a defender cada escolha com o que as pessoas disseram e fizeram, não com gosto pessoal.</p></div>
+      </div>
+
+      <h3 class="pairs-title">O que costuma travar a decisão por um curso</h3>
+      <div class="pairs">
+        <article class="pair"><p class="pair__pain">“Não sei por onde começar.”</p><p class="pair__ans"><span class="tag">No curso</span>Uma trilha de 8 módulos, um tema por semana, sempre na mesma ordem.</p></article>
+        <article class="pair"><p class="pair__pain">“Tenho medo de ficar só na teoria.”</p><p class="pair__ans"><span class="tag">No curso</span>Toda semana termina com uma entrega do seu projeto. No fim, elas viram o seu estudo de caso.</p></article>
+        <article class="pair"><p class="pair__pain">“Os termos me confundem.”</p><p class="pair__ans"><span class="tag">No curso</span>Cada palavra nova é explicada em português simples. Veja o glossário na seção do curso.</p></article>
+        <article class="pair"><p class="pair__pain">“Não sei quanto vai custar no final.”</p><p class="pair__ans"><span class="tag">No curso</span>Preço fechado de R$&nbsp;597, sem taxa de matrícula e com 7 dias de garantia.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- O CURSO -->
+  <section class="band" id="curso" data-section aria-labelledby="h-curso">
+    <div class="wrap">
+      <div class="course-top">
+        <div class="value">
+          <p class="eyebrow">O curso</p>
+          <h2 id="h-curso">Você sai com um estudo de caso completo, feito do zero com pessoas reais.</h2>
+          <p class="lede">Cada semana tem um tema e uma entrega. As entregas se encaixam e, juntas, formam o projeto que você mostra em entrevistas e no portfólio.</p>
+        </div>
+        <dl class="facts">
+          <div><dt>Duração</dt><dd>8 semanas</dd></div>
+          <div><dt>Carga</dt><dd>32 horas</dd></div>
+          <div><dt>Turma</dt><dd>25 pessoas</dd></div>
+          <div><dt>Formato</dt><dd>100% online</dd></div>
+        </dl>
+      </div>
+
+      <div class="mod-head">
+        <div>
+          <h3>As 8 semanas, uma entrega por vez</h3>
+          <p>Toque em um módulo para ver o conteúdo.</p>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="toggle-all" type="button" aria-controls="modules">Expandir todos</button>
+      </div>
+
+      <ol class="modules" id="modules">
+        <li><details class="mod"><summary><span class="mod-n">01</span><span class="mod-t">Fundamentos de UX</span><span class="mod-w">Semana 1</span><span class="mod-i" aria-hidden="true"></span></summary>
+          <div class="mod-body"><p>O que é experiência do usuário, o que faz uma pessoa de UX e como é o processo de trabalho do começo ao fim.</p><p class="tag">Fase: Descobrir</p><div class="deliver"><span class="tag">Você entrega</span><strong>O tema do seu projeto e um resumo de 1 página.</strong></div></div></details></li>
+        <li><details class="mod"><summary><span class="mod-n">02</span><span class="mod-t">Pesquisa com usuários</span><span class="mod-w">Semana 2</span><span class="mod-i" aria-hidden="true"></span></summary>
+          <div class="mod-body"><p>Entrevistas, questionários e observação. Como perguntar sem induzir a resposta e como anotar o que a pessoa realmente disse.</p><p class="tag">Fase: Descobrir</p><div class="deliver"><span class="tag">Você entrega</span><strong>5 entrevistas feitas e anotadas.</strong></div></div></details></li>
+        <li><details class="mod"><summary><span class="mod-n">03</span><span class="mod-t">Definir o problema</span><span class="mod-w">Semana 3</span><span class="mod-i" aria-hidden="true"></span></summary>
+          <div class="mod-body"><p>Persona, jornada do usuário e a frase que resume o problema que vale a pena resolver.</p><p class="tag">Fase: Definir</p><div class="deliver"><span class="tag">Você entrega</span><strong>Persona, jornada e proposta de valor do projeto.</strong></div></div></details></li>
+        <li><details class="mod"><summary><span class="mod-n">04</span><span class="mod-t">Organizar conteúdo e caminhos</span><span class="mod-w">Semana 4</span><span class="mod-i" aria-hidden="true"></span></summary>
+          <div class="mod-body"><p>Arquitetura da informação: como agrupar o conteúdo e desenhar os caminhos para a pessoa achar o que procura sem se perder.</p><p class="tag">Fase: Definir</p><div class="deliver"><span class="tag">Você entrega</span><strong>Mapa do site e fluxo da tarefa principal.</strong></div></div></details></li>
+        <li><details class="mod"><summary><span class="mod-n">05</span><span class="mod-t">Wireframes e protótipo</span><span class="mod-w">Semana 5</span><span class="mod-i" aria-hidden="true"></span></summary>
+          <div class="mod-body"><p>Do esboço no papel ao protótipo clicável no Figma. Você aprende a criar rápido e a descartar sem medo.</p><p class="tag">Fase: Desenvolver</p><div class="deliver"><span class="tag">Você entrega</span><strong>Protótipo clicável de baixa fidelidade.</strong></div></div></details></li>
+        <li><details class="mod"><summary><span class="mod-n">06</span><span class="mod-t">Interface e consistência</span><span class="mod-w">Semana 6</span><span class="mod-i" aria-hidden="true"></span></summary>
+          <div class="mod-body"><p>Tipografia, cor, espaçamento e componentes que se repetem do mesmo jeito em todas as telas, para a pessoa nunca ficar na dúvida.</p><p class="tag">Fase: Desenvolver</p><div class="deliver"><span class="tag">Você entrega</span><strong>Telas finais com um guia de estilo de 1 página.</strong></div></div></details></li>
+        <li><details class="mod"><summary><span class="mod-n">07</span><span class="mod-t">Testes e heurísticas de Nielsen</span><span class="mod-w">Semana 7</span><span class="mod-i" aria-hidden="true"></span></summary>
+          <div class="mod-body"><p>Avalie uma tela com as 10 heurísticas de Nielsen e teste com 5 pessoas para descobrir onde elas travam.</p><p class="tag">Fase: Entregar</p><div class="deliver"><span class="tag">Você entrega</span><strong>Relatório com os problemas encontrados e as correções.</strong></div></div></details></li>
+        <li><details class="mod"><summary><span class="mod-n">08</span><span class="mod-t">Projeto final e portfólio</span><span class="mod-w">Semana 8</span><span class="mod-i" aria-hidden="true"></span></summary>
+          <div class="mod-body"><p>Monte o estudo de caso, conte a história do projeto e ensaie a apresentação com a turma.</p><p class="tag">Fase: Entregar</p><div class="deliver"><span class="tag">Você entrega</span><strong>Estudo de caso publicado, pronto para o portfólio.</strong></div></div></details></li>
+      </ol>
+      <p class="hint" id="mod-status" role="status" style="margin-top:10px"></p>
+
+      <div class="two">
+        <div>
+          <h3>O que você precisa ter</h3>
+          <ul class="ticks">
+            <li><b>Nenhum conhecimento prévio</b> de design ou de programação.</li>
+            <li>Computador com internet e câmera para os encontros ao vivo.</li>
+            <li>Conta gratuita no Figma. Mostramos como criar na semana 1.</li>
+            <li>Cerca de <b>4 horas livres por semana</b>: 1h30 ao vivo e 2h30 de prática.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>O que torna este curso diferente</h3>
+          <ul class="ticks">
+            <li><b>Um único projeto</b> do começo ao fim, em vez de vários exercícios soltos.</li>
+            <li><b>Feedback individual</b> em cada uma das 8 entregas.</li>
+            <li><b>Turmas de até 25 pessoas</b>, para você ser visto e ouvido.</li>
+            <li><b>Linguagem simples</b>, com glossário e sem siglas sem explicação.</li>
+            <li><b>Garantia de 7 dias</b>: se não for para você, devolvemos o valor.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="gloss" id="glossario">
+        <h3>Sem jargão: o que cada termo quer dizer</h3>
+        <dl>
+          <div><dt>Duplo Diamante</dt><dd>Método em quatro fases (descobrir, definir, desenvolver e entregar) para entender o problema antes de criar a solução.</dd></div>
+          <div><dt>Heurística de Nielsen</dt><dd>Regra prática para avaliar se uma tela é fácil de usar. São dez regras, criadas por Jakob Nielsen.</dd></div>
+          <div><dt>Persona</dt><dd>Personagem baseado em pessoas reais, que representa o seu público.</dd></div>
+          <div><dt>Jornada do usuário</dt><dd>O caminho da pessoa, do primeiro contato até conseguir o que queria.</dd></div>
+          <div><dt>Arquitetura da informação</dt><dd>A organização do conteúdo, para cada coisa estar onde a pessoa espera.</dd></div>
+          <div><dt>Wireframe</dt><dd>Esboço simples de uma tela, só com caixas e textos, sem cores.</dd></div>
+          <div><dt>Protótipo</dt><dd>Versão clicável da tela, usada para testar antes de programar.</dd></div>
+          <div><dt>Teste de usabilidade</dt><dd>Observar pessoas usando o protótipo para achar o que atrapalha.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREÇO -->
+  <section class="band band--surface" id="preco" data-section aria-labelledby="h-preco">
+    <div class="wrap price-grid">
+      <div>
+        <header class="sec-head" style="margin-bottom:28px">
+          <p class="eyebrow">Preço</p>
+          <h2 id="h-preco">Um preço fechado, sem taxas extras.</h2>
+          <p class="lede">O valor abaixo é o total. Não existe taxa de matrícula, material pago à parte nem cobrança pelo certificado.</p>
+        </header>
+        <ul class="ticks">
+          <li>8 módulos e 8 encontros ao vivo, todos gravados</li>
+          <li>Feedback individual nas 8 entregas</li>
+          <li>Modelos prontos para usar no Figma</li>
+          <li>Certificado de 32 horas ao concluir o projeto final</li>
+          <li>Acesso às gravações por 12 meses</li>
+        </ul>
+      </div>
+
+      <aside class="price-card" aria-label="Valor e condições">
+        <p class="tag">Turma de fevereiro · começa em segunda, 1º de fevereiro de 2027</p>
+        <div>
+          <p class="price-big">R$&nbsp;597</p>
+          <p class="hint">à vista, no Pix ou no cartão</p>
+        </div>
+        <p class="price-alt">ou <b>12x de R$&nbsp;49,75</b> sem juros</p>
+        <a class="btn btn--primary" href="#inscricao">Quero me inscrever</a>
+        <p class="price-note"><b>Garantia de 7 dias.</b> Se desistir nesse prazo, devolvemos 100% do valor.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- PERGUNTAS -->
+  <section class="band" id="perguntas" data-section aria-labelledby="h-faq">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow">Dúvidas</p>
+        <h2 id="h-faq">Perguntas que quase todo mundo faz.</h2>
+      </header>
+      <div class="faq">
+        <details><summary>Preciso saber desenhar?</summary><p>Não. UX é mais sobre entender pessoas do que sobre desenhar bem. Os modelos prontos ajudam a montar as telas.</p></details>
+        <details><summary>Preciso saber programar?</summary><p>Não. O protótipo é feito no Figma, sem escrever código.</p></details>
+        <details><summary>Quanto tempo preciso por semana?</summary><p>Cerca de 4 horas: 1h30 no encontro ao vivo e 2h30 para fazer a entrega da semana.</p></details>
+        <details><summary>E se eu perder um encontro ao vivo?</summary><p>Todos os encontros ficam gravados e disponíveis por 12 meses. Você assiste quando puder e envia a entrega no prazo.</p></details>
+        <details><summary>Posso desistir?</summary><p>Pode. Em até 7 dias depois da inscrição, devolvemos 100% do valor, sem perguntas.</p></details>
+        <details><summary>Recebo certificado?</summary><p>Sim, um certificado de 32 horas, emitido quando você entrega o projeto final.</p></details>
+        <details><summary>Como posso pagar?</summary><p>À vista no Pix ou no cartão (R$&nbsp;597), ou em 12x de R$&nbsp;49,75 sem juros no cartão.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSCRIÇÃO -->
+  <section class="band band--accent" id="inscricao" data-section aria-labelledby="h-insc">
+    <div class="wrap enroll-grid">
+      <div class="recap">
+        <p class="eyebrow">Inscrição</p>
+        <h2 id="h-insc">Reserve sua vaga em 2 minutos.</h2>
+        <p class="lede" style="color:var(--ink);opacity:.8">São só dois campos obrigatórios. Antes de confirmar, você confere tudo e pode voltar para corrigir.</p>
+        <dl>
+          <div><dt>Curso</dt><dd>Oficina UX · 8 semanas · 32 horas</dd></div>
+          <div><dt>Início</dt><dd>Segunda, 1º de fevereiro de 2027</dd></div>
+          <div><dt>Você paga</dt><dd id="recap-pay">R$ 597 à vista (Pix ou cartão)</dd></div>
+          <div><dt>Garantia</dt><dd>7 dias para desistir</dd></div>
+        </dl>
+      </div>
+
+      <div class="card">
+        <form id="enroll" novalidate aria-label="Formulário de inscrição">
+          <ol class="steps" id="steps" aria-label="Etapas da inscrição" style="margin-bottom:22px">
+            <li class="is-current" aria-current="step"><span class="dot">1</span>Seus dados</li>
+            <li><span class="dot">2</span>Conferir</li>
+            <li><span class="dot">3</span>Pronto</li>
+          </ol>
+
+          <div class="err-summary" id="err-summary" role="alert" hidden></div>
+
+          <div class="panel" data-panel="1">
+            <div class="field">
+              <label for="f-name">Nome completo</label>
+              <span class="hint" id="f-name-hint">Como vai aparecer no certificado.</span>
+              <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-hint f-name-msg">
+              <p class="msg" id="f-name-msg" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="f-email">E-mail</label>
+              <span class="hint" id="f-email-hint">Vamos enviar a confirmação para este endereço.</span>
+              <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="f-email-hint f-email-msg">
+              <p class="msg" id="f-email-msg" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="f-profile">Qual é o seu perfil? <span class="hint">(opcional)</span></label>
+              <select id="f-profile" name="profile">
+                <option value="">Prefiro não informar</option>
+                <option value="Venho de outra área">Venho de outra área</option>
+                <option value="Sou desenvolvedor(a)">Sou desenvolvedor(a)</option>
+                <option value="Já desenho interfaces">Já desenho interfaces</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <fieldset class="field">
+              <legend>Forma de pagamento</legend>
+              <div class="opts">
+                <label class="opt" for="pay-1"><input type="radio" id="pay-1" name="pay" value="avista" checked><span><b>À vista · R$ 597</b><span>No Pix ou no cartão</span></span></label>
+                <label class="opt" for="pay-2"><input type="radio" id="pay-2" name="pay" value="parcelado"><span><b>12x de R$ 49,75</b><span>Sem juros, no cartão. Total de R$ 597</span></span></label>
+              </div>
+            </fieldset>
+            <div class="actions">
+              <button class="btn btn--primary" type="submit" id="to-review">Revisar inscrição</button>
+              <span class="hint">Nada será cobrado agora.</span>
+            </div>
+          </div>
+
+          <div class="panel" data-panel="2" hidden>
+            <h3 id="review-title" tabindex="-1">Confira antes de confirmar</h3>
+            <dl class="review">
+              <div><dt>Nome</dt><dd id="r-name"></dd></div>
+              <div><dt>E-mail</dt><dd id="r-email"></dd></div>
+              <div><dt>Perfil</dt><dd id="r-profile"></dd></div>
+              <div><dt>Pagamento</dt><dd id="r-pay"></dd></div>
+              <div><dt>Turma</dt><dd>Começa em 1º de fevereiro de 2027</dd></div>
+            </dl>
+            <div class="actions">
+              <button class="btn btn--ghost" type="button" id="back">Voltar e editar</button>
+              <button class="btn btn--primary" type="submit" id="confirm"><span class="spinner" aria-hidden="true"></span><span class="btn__label">Confirmar pré-inscrição</span></button>
+            </div>
+            <p class="status" id="send-status" role="status"></p>
+          </div>
+
+          <div class="panel" data-panel="3" hidden>
+            <span class="done-badge">Pré-inscrição registrada</span>
+            <h3 id="done-title" tabindex="-1">Tudo certo, <span id="done-name"></span>.</h3>
+            <p>Em um curso real, enviaríamos agora a confirmação para <b id="done-email"></b>, com o link do primeiro encontro ao vivo.</p>
+            <p class="sim-note">Este site é um projeto acadêmico. O curso é fictício e nenhum dado digitado aqui foi enviado ou guardado.</p>
+            <div class="actions">
+              <a class="btn btn--ghost" href="#topo">Voltar ao início</a>
+              <button class="btn btn--ghost" type="button" id="again">Fazer outra inscrição</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCUMENTAÇÃO -->
+  <section class="band" id="como-foi-feito" data-section aria-labelledby="h-doc">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow">Documentação do projeto</p>
+        <h2 id="h-doc">Onde e como o Duplo Diamante e as heurísticas de Nielsen foram aplicados.</h2>
+        <p class="lede">Resumo para quem avalia o projeto. Cada item tem um link para o ponto da página onde dá para ver a aplicação.</p>
+      </header>
+
+      <div class="doc-block">
+        <h3>Duplo Diamante</h3>
+        <div class="doc-list">
+          <div class="doc-row"><h4><small>Fase 1</small>Descobrir: mapeamento e entendimento</h4><p>Antes de desenhar, identificamos o público-alvo (quem vem de outra área, quem programa e quem já desenha) e as dores de quem procura um curso: não saber por onde começar, medo da teoria, termos confusos e preço incerto.</p><a href="#para-quem">Ver na página</a></div>
+          <div class="doc-row"><h4><small>Fase 2</small>Definir: proposta de valor</h4><p>As dores viraram uma promessa clara: um estudo de caso completo em 8 semanas. Módulos, pré-requisitos, diferenciais e preço aparecem juntos, sem letras miúdas.</p><a href="#curso">Ver na página</a></div>
+          <div class="doc-row"><h4><small>Fase 3</small>Desenvolver: estrutura da interface</h4><p>A ordem das seções acompanha a decisão do visitante: me reconheço, entendo o curso, vejo o preço e tiro dúvidas. Cada dor ganhou uma resposta direta, e o glossário e as perguntas frequentes removem os últimos bloqueios.</p><a href="#perguntas">Ver na página</a></div>
+          <div class="doc-row"><h4><small>Fase 4</small>Entregar: conversão</h4><p>O botão de inscrição aparece no topo, no início da página, no preço e no fim. O formulário é curto, tem 3 etapas e uma conferência antes de confirmar.</p><a href="#inscricao">Ver na página</a></div>
+        </div>
+      </div>
+
+      <div class="doc-block">
+        <h3>Heurísticas de Nielsen</h3>
+        <div class="doc-list">
+          <div class="doc-row"><h4><small>H1</small>Visibilidade do status do sistema</h4><p>Barra de progresso de leitura no topo, item do menu destacado na seção atual, indicador de 3 etapas no formulário e botão que muda para “Enviando…” com animação ao confirmar.</p><a href="#inscricao">Ver no formulário</a></div>
+          <div class="doc-row"><h4><small>H2</small>Correspondência com o mundo real</h4><p>Textos em português simples, preço em reais com a parcela já calculada e um glossário que explica cada termo de UX.</p><a href="#glossario">Ver o glossário</a></div>
+          <div class="doc-row"><h4><small>H3</small>Controle e liberdade do usuário</h4><p>Na conferência dá para voltar e editar. Os módulos abrem e fecham um a um ou todos de uma vez, e o formulário pode ser refeito depois do envio.</p><a href="#inscricao">Ver no formulário</a></div>
+          <div class="doc-row"><h4><small>H4</small>Consistência e padrões</h4><p>Um único conjunto de cores, tipografia e espaçamentos. Botões, títulos de seção, cartões e listas têm sempre a mesma aparência e o mesmo comportamento.</p><a href="#curso">Ver nas seções</a></div>
+          <div class="doc-row"><h4><small>H5</small>Prevenção de erros</h4><p>Validação ao sair de cada campo, sugestão de correção para e-mails com erro de digitação, pagamento já pré-selecionado e uma etapa de conferência antes de confirmar.</p><a href="#inscricao">Ver no formulário</a></div>
+          <div class="doc-row"><h4><small>H6</small>Reconhecimento em vez de memorização</h4><p>Menu fixo sempre visível, perfis em abas com situações conhecidas e resumo do valor ao lado do formulário, sem precisar lembrar do preço.</p><a href="#para-quem">Ver as abas</a></div>
+          <div class="doc-row"><h4><small>H7</small>Flexibilidade e eficiência de uso</h4><p>Navegação completa pelo teclado, abas com setas, link “Pular para o conteúdo” e preenchimento automático dos campos pelo navegador.</p><a href="#para-quem">Ver as abas</a></div>
+          <div class="doc-row"><h4><small>H8</small>Design estético e minimalista</h4><p>Uma ação principal por seção e só dois campos obrigatórios no formulário. O conteúdo extra fica em módulos e perguntas que o visitante abre se quiser.</p><a href="#inscricao">Ver o formulário</a></div>
+          <div class="doc-row"><h4><small>H9</small>Ajudar a reconhecer e corrigir erros</h4><p>As mensagens dizem o que houve e como corrigir. Um resumo no topo do formulário lista os problemas, com links que levam direto a cada campo.</p><a href="#inscricao">Ver no formulário</a></div>
+          <div class="doc-row"><h4><small>H10</small>Ajuda e documentação</h4><p>Perguntas frequentes, glossário e esta seção de documentação.</p><a href="#perguntas">Ver as perguntas</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__top">
+      <a class="brand" href="#topo">
+        <svg viewBox="0 0 34 18" aria-hidden="true" width="34" height="18"><polygon points="1,9 9,1 17,9 9,17" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="17,9 25,1 33,9 25,17" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        Oficina UX
+      </a>
+      <nav aria-label="Rodapé">
+        <a href="#para-quem">Para quem</a>
+        <a href="#curso">O curso</a>
+        <a href="#preco">Preço</a>
+        <a href="#perguntas">Dúvidas</a>
+        <a href="#inscricao">Inscrição</a>
+        <a href="#topo">Voltar ao topo</a>
+      </nav>
+    </div>
+    <p>Projeto da disciplina de Experiência do Usuário (UX), curso de Análise e Desenvolvimento de Sistemas. O curso, o preço e a turma são fictícios, e nenhum dado digitado nesta página é enviado.</p>
+  </div>
+</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* Cabeçalho: altura real, progresso de leitura e seção atual */
+  var header = $("#site-header"), bar = $("#progress"), nav = $("#nav");
+  var links = $$("[data-spy]"), sections = $$("[data-section]");
+  function setHeaderH() { document.documentElement.style.setProperty("--header-h", header.offsetHeight + "px"); }
+  setHeaderH();
+  window.addEventListener("resize", setHeaderH);
+  if ("ResizeObserver" in window) new ResizeObserver(setHeaderH).observe(header);
+  var ticking = false, lastCur = null;
+  function onScroll() {
+    ticking = false;
+    var de = document.documentElement, max = de.scrollHeight - window.innerHeight;
+    bar.style.transform = "scaleX(" + (max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0) + ")";
+    var line = header.getBoundingClientRect().bottom + 80, cur = null;
+    sections.forEach(function (s) { if (s.getBoundingClientRect().top <= line) cur = s.id; });
+    if (cur === lastCur) return;
+    lastCur = cur;
+    links.forEach(function (a) {
+      var on = a.getAttribute("href") === "#" + cur;
+      if (on) {
+        a.setAttribute("aria-current", "true");
+        if (nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.offsetWidth / 2 });
+      } else a.removeAttribute("aria-current");
+    });
+  }
+  window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
+  /* Abas de perfil */
+  var tabs = $$(".tab"), panels = $$(".tabpanel");
+  function selectTab(t, focus) {
+    tabs.forEach(function (x) { var on = x === t; x.setAttribute("aria-selected", on ? "true" : "false"); x.tabIndex = on ? 0 : -1; });
+    panels.forEach(function (p) { p.hidden = p.id !== t.getAttribute("aria-controls"); });
+    if (focus) t.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { selectTab(t); });
+    t.addEventListener("keydown", function (e) {
+      var n = null;
+      if (e.key === "ArrowRight") n = tabs[(i + 1) % tabs.length];
+      else if (e.key === "ArrowLeft") n = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (e.key === "Home") n = tabs[0];
+      else if (e.key === "End") n = tabs[tabs.length - 1];
+      if (n) { e.preventDefault(); selectTab(n, true); }
+    });
+  });
+
+  /* Módulos: expandir/recolher todos */
+  var mods = $$(".mod"), toggleAll = $("#toggle-all"), modStatus = $("#mod-status");
+  function syncToggle() {
+    var all = mods.every(function (d) { return d.open; });
+    toggleAll.textContent = all ? "Recolher todos" : "Expandir todos";
+    toggleAll.dataset.state = all ? "open" : "closed";
+  }
+  mods.forEach(function (d) { d.addEventListener("toggle", syncToggle); });
+  toggleAll.addEventListener("click", function () {
+    var open = toggleAll.dataset.state !== "open";
+    mods.forEach(function (d) { d.open = open; });
+    syncToggle();
+    modStatus.textContent = open ? "Os 8 módulos estão abertos." : "Os 8 módulos estão fechados.";
+  });
+  syncToggle();
+
+  /* Formulário de inscrição */
+  var form = $("#enroll"), stepsEl = $$("#steps li"), fpanels = $$("[data-panel]"), summary = $("#err-summary");
+  var fields = { name: $("#f-name"), email: $("#f-email") };
+  var labels = { name: "Nome completo", email: "E-mail" };
+  var payText = { avista: "R$ 597 à vista (Pix ou cartão)", parcelado: "12x de R$ 49,75 sem juros (total de R$ 597)" };
+  var typos = { "gmial.com": "gmail.com", "gmai.com": "gmail.com", "gamil.com": "gmail.com", "gmail.con": "gmail.com", "gmail.com.br": "gmail.com", "hotmial.com": "hotmail.com", "hotmail.con": "hotmail.com", "outlok.com": "outlook.com", "yahho.com": "yahoo.com", "yaho.com": "yahoo.com" };
+  var step = 1;
+
+  var rules = {
+    name: function (v) {
+      v = v.trim();
+      if (!v) return "Informe seu nome completo.";
+      if (!/\S+\s+\S+/.test(v)) return "Escreva nome e sobrenome, como no certificado.";
+      return "";
+    },
+    email: function (v) {
+      v = v.trim();
+      if (!v) return "Informe seu e-mail.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return "Esse e-mail parece incompleto. Exemplo: nome@email.com.";
+      return "";
+    }
+  };
+  function msgOf(input) { return $("#" + input.id + "-msg"); }
+  function setError(input, text) {
+    var wrap = input.closest(".field"), m = msgOf(input);
+    m.textContent = "";
+    if (text) { wrap.classList.add("field--invalid"); input.setAttribute("aria-invalid", "true"); m.textContent = text; }
+    else { wrap.classList.remove("field--invalid"); input.removeAttribute("aria-invalid"); }
+  }
+  function check(key) { var err = rules[key](fields[key].value); setError(fields[key], err); return !err; }
+  function suggest(v) {
+    var m = v.trim().toLowerCase().match(/^([^\s@]+)@(.+)$/);
+    return m && typos[m[2]] ? m[1] + "@" + typos[m[2]] : "";
+  }
+  function showSuggestion() {
+    var input = fields.email, s = suggest(input.value);
+    if (!s) return;
+    var m = msgOf(input);
+    m.textContent = "Você quis dizer ";
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "linklike"; b.textContent = s;
+    b.addEventListener("click", function () { input.value = s; m.textContent = ""; input.focus(); });
+    m.appendChild(b);
+    m.appendChild(document.createTextNode("?"));
+  }
+  Object.keys(fields).forEach(function (key) {
+    var input = fields[key];
+    input.addEventListener("blur", function () {
+      if (input.value.trim() === "" && !input.hasAttribute("aria-invalid")) return;
+      if (check(key) && key === "email") showSuggestion();
+    });
+    input.addEventListener("input", function () { if (input.hasAttribute("aria-invalid")) check(key); });
+  });
+
+  function showSummary(bad) {
+    summary.textContent = "";
+    var p = document.createElement("p");
+    p.textContent = bad.length === 1 ? "Corrija 1 campo para continuar:" : "Corrija " + bad.length + " campos para continuar:";
+    var ul = document.createElement("ul");
+    bad.forEach(function (key) {
+      var li = document.createElement("li"), a = document.createElement("a");
+      a.href = "#" + fields[key].id;
+      a.textContent = labels[key] + ": " + msgOf(fields[key]).textContent;
+      a.addEventListener("click", function (e) { e.preventDefault(); fields[key].focus(); });
+      li.appendChild(a); ul.appendChild(li);
+    });
+    summary.appendChild(p); summary.appendChild(ul);
+    summary.hidden = false;
+  }
+  function hideSummary() { summary.hidden = true; summary.textContent = ""; }
+
+  function goStep(n) {
+    step = n;
+    fpanels.forEach(function (p) { p.hidden = Number(p.dataset.panel) !== n; });
+    stepsEl.forEach(function (li, i) {
+      var s = i + 1;
+      li.classList.toggle("is-current", s === n);
+      li.classList.toggle("is-done", s < n);
+      if (s === n) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+    });
+    if (n === 1) fields.name.focus();
+    if (n === 2) $("#review-title").focus();
+    if (n === 3) $("#done-title").focus();
+  }
+  function payValue() { return form.elements.pay.value; }
+  function updatePay() { $("#recap-pay").textContent = payText[payValue()]; }
+  $$("input[name=pay]").forEach(function (r) { r.addEventListener("change", updatePay); });
+
+  function toReview() {
+    var bad = Object.keys(fields).filter(function (k) { return !check(k); });
+    if (bad.length) { showSummary(bad); fields[bad[0]].focus(); return; }
+    hideSummary();
+    var sel = $("#f-profile");
+    $("#r-name").textContent = fields.name.value.trim();
+    $("#r-email").textContent = fields.email.value.trim();
+    $("#r-profile").textContent = sel.value ? sel.options[sel.selectedIndex].text : "Não informado";
+    $("#r-pay").textContent = payText[payValue()];
+    goStep(2);
+  }
+  function doConfirm() {
+    var btn = $("#confirm"), back = $("#back"), label = $(".btn__label", btn);
+    btn.disabled = true; back.disabled = true;
+    btn.classList.add("is-busy"); btn.setAttribute("aria-busy", "true");
+    label.textContent = "Enviando…";
+    $("#send-status").textContent = "Enviando sua pré-inscrição…";
+    setTimeout(function () {
+      btn.disabled = false; back.disabled = false;
+      btn.classList.remove("is-busy"); btn.removeAttribute("aria-busy");
+      label.textContent = "Confirmar pré-inscrição";
+      $("#send-status").textContent = "";
+      $("#done-name").textContent = fields.name.value.trim().split(/\s+/)[0];
+      $("#done-email").textContent = fields.email.value.trim();
+      goStep(3);
+    }, 1400);
+  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (step === 1) toReview();
+    else if (step === 2 && !$("#confirm").disabled) doConfirm();
+  });
+  $("#back").addEventListener("click", function () { goStep(1); });
+  $("#again").addEventListener("click", function () {
+    form.reset(); hideSummary();
+    Object.keys(fields).forEach(function (k) { setError(fields[k], ""); });
+    updatePay(); goStep(1);
+  });
+  updatePay();
+})();
+</script>
+
+</body></html>
